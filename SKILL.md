@@ -36,9 +36,11 @@ xvfb-run -a -s "-screen 0 1366x900x24" python3 your_script.py
 ```python
 import asyncio
 from camoufox.async_api import AsyncCamoufox
+from camoufox.addons import DefaultAddons
 
 async def main():
-    async with AsyncCamoufox(headless=False, os="windows", geoip=True) as b:
+    async with AsyncCamoufox(headless=False, os="windows", geoip=True,
+                             exclude_addons=[DefaultAddons.UBO]) as b:
         page = await b.new_page(viewport={"width": 1200, "height": 800})
         await page.goto("https://example.com", timeout=60000, wait_until="domcontentloaded")
         # ... human interaction (section 3) ...
@@ -55,6 +57,13 @@ The three flags are non-negotiable:
 
 Do NOT add `humanize=True` in headed mode — it **hangs the launch** (infinite
 block inside `AsyncCamoufox.__aenter__`). HumanCursor replaces it.
+
+Also add `exclude_addons=[DefaultAddons.UBO]` whenever the automation touches
+**ad or anti-fraud domains** (adsco.re, ad networks, trackers): Camoufox
+silently bundles uBlock Origin and it cancels those requests pre-network
+(`NS_ERROR_ABORT`, no connection attempt), which looks exactly like a proxy or
+server failure. For plain bot-check sites it is harmless; for anything
+ad-related it is fatal. Details in `references/pitfalls.md`.
 
 ## 3. Human interaction (real OS cursor + typing cadence)
 
