@@ -124,6 +124,22 @@ a killed run leaves nothing behind.
   pattern appears in the block you're running — the block kills itself
   (exit 143/137). Use `pkill -x <name>` or kill by PID.
 
+## WebRTC leaks the real IP under proxies (fixed in config)
+
+CreepJS/pixelscan-style sites read the STUN `srflx` candidate: even with a
+perfect fingerprint, the browser hands out the **real public IP** — fatal when
+the whole point is a proxy IP. Baseline test showed `candidate:... typ srflx
+raddr 0.0.0.0` carrying the host IP straight into the fingerprint.
+
+Fix (in `firefox_user_prefs`):
+```
+"media.peerconnection.enabled": False,
+"media.peerconnection.ice.default_address_only": True,
+"media.peerconnection.ice.no_host": True,
+```
+Result: CreepJS reports WebRTC `blocked` instead of the real IP. Cost: sites
+note WebRTC as disabled — far cheaper than an IP incoherence.
+
 ## Known limits of the stack
 
 - Camoufox OS profiles: only `macos`, `windows`, `linux` — no Android/iOS.
