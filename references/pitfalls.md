@@ -214,3 +214,28 @@ issues its own inventory request) while the campaign URL
 (`displayvertising.com/?kg=<token>` / `?it=<token>`) is assigned to the flow
 — don't expect the popup URL to be the campaign URL; grep the inventory
 body for it instead.
+
+## AdScore internals (a.js decompiled probe map) + IP gate conclusion
+
+The `c.adsco.re` script (~98 KB) runs 38 environment probes `s0`-`s37` and 32
+async probes `ai0`-`ai31`. The ones that matter for OS/coherence spoofing:
+`s7` error-stack format, `s10` Intl timezones/currencies, `s14`
+`toLocaleString`, `s15` real font metrics (offsetWidth/Height), `s16` Math
+libm hash (OS-dependent!), `s26` prototype-chain integrity (spoof
+detection), `s34`-`s36` WebGL renderer + getParameter call-rate + shader
+precision, `s25` scan for window/document/navigator keys starting with `_`/
+`$cd` or exactly 28 chars (automation globals incl. `__pwInitScripts`,
+`__playwright_builtins__`, `_phantom`, `_selenium`), `s24` window.open
+popup-blocker behavior. `ai9`/`ai23` count mouse/pointer events, `ai25`
+rAF timing, `ai14`-`ai17` reach 4/6.adsco.re:2087 (multi-endpoint IP
+coherence), `ai30`/`ai31` WebRTC data.
+
+Final verdict after the full elimination matrix: automation markers were
+clean, coherent Linux env passed the probe layer, 360 s of behavioral
+collection did NOT change the verdict — on a datacenter IP (M247, VPN
+range) the answer stays `result:0` forever. The IP gate at the server is
+independent of everything client-side: datacenter/VPN-range IP = no
+inventory, private clean residential IP = inventory (2/11 sessions, the
+failures being public-list or recycled exits whose AdScore history is
+tainted). A proxy that appears on ANY public proxy list is effectively
+pre-flagged, even when ip-api shows proxy:false.
