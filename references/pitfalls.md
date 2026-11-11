@@ -188,3 +188,29 @@ note WebRTC as disabled — far cheaper than an IP incoherence.
   cron re-tests at evening hours) or an AdScore verdict component that
   cannot be reached from inside the browser (e.g. server-side TLS/TCP
   fingerprint of the JSONP request vs the OS claimed in the signature).
+
+## SOLVED — the two-condition recipe that fires the pop (result:1 + popup)
+
+Proven by A/B on the same exit IP, same minute, same behavior:
+
+1. **Coherent environment**: `os="linux"` on the Linux host (NO OS spoof)
+   **and** `canvas_noise=False, i_know_what_im_doing=True` (stock canvas, no
+   RFP-style readback noise). The Windows spoof on a Linux TCP/Xvfb stack is
+   what AdScore punishes — A/B proof: same clean French residential exit
+   gave `result:1`+popup with coherent Linux and `result:0` with
+   `os="windows"`.
+2. **A residential exit whose AdScore history is clean** — this is per-IP,
+   not per-ISP: 2 successes out of 11 French residential sessions (Orange
+   fixed `92.184.125.35`, Free Mobile `37.167.73.174`), while Bouygues, SFR,
+   Free fixed and other Orange exits all returned `result:0` with the
+   identical winning config. Datacenter IPs fail even with the coherent
+   stack. Practical loop: rotate proxy sessions, abort each run as soon as
+   the first inventory response reads `result:0` (~25 s, page-load cost
+   only), keep the session alive only when `result:1` appears.
+
+Popunder window choreography once it fires: popup opens `about:blank`, then
+**loads the site itself** (window-swap: the popup re-arms the engine and
+issues its own inventory request) while the campaign URL
+(`displayvertising.com/?kg=<token>` / `?it=<token>`) is assigned to the flow
+— don't expect the popup URL to be the campaign URL; grep the inventory
+body for it instead.
