@@ -153,3 +153,38 @@ note WebRTC as disabled — far cheaper than an IP incoherence.
   and "no campaign for your geo" — the AdScore signature is opaque to the
   client, so only a comparative test (your own clean IP vs the test IP)
   separates detection from plain inventory emptiness.
+- The PopAds-style engine's inventory JSONP path is **random per load**
+  (`displayvertising.com/awwdvomzzvxhbepzdqs?...`), not a fixed `/c` — capture
+  with `"displayvertising" in url and "?" in url`, never a path prefix. The
+  endpoint itself accepts **any** path (even `/`), it validates only the
+  signature param — handy for replaying a captured signature via curl.
+- The AdScore signature **prefix varies with the environment** while staying
+  valid (`BQOC` win-spoof, `BQOi` persistent profile, `BQNy` linux profile,
+  `BQP…` vanilla Chromium). Log `sig[:12]` + `len` on every run: a changed
+  prefix proves AdScore re-scored the new environment; an unchanged
+  `result:0` across all of them means the block is upstream of the prefix
+  (verdict threshold, dayparting or empty inventory).
+- Engine config is embedded in the page as `window.<32-hex> = [[key,value],…]`
+  with **arithmetic-obfuscated values** (`siteId: 528+847*339-221+5038949`),
+  and only on the page(s) that include the loader — article/subpages may ship
+  **no scripts at all**, so multi-page "warm-up" navigations off the armed page
+  produce no inventory requests. Read the config from the HTML with curl
+  before planning any browser run: `blockedCountries`, `trafficType`,
+  `prepop`, `default` (fallback) — their absence is itself information.
+- Camoufox persistent profile: `AsyncCamoufox(persistent_context=True,
+  user_data_dir=...)` (both args; `persistent_context=PATH` raises
+  TypeError, `user_data_dir` alone launches a non-persistent browser and
+  also raises). The context is returned directly — use `ctx.pages`, not
+  `browser.new_context()`.
+- Elimination protocol that produced a clean verdict in one session (all
+  `result:0`, direct datacenter IP unless noted): vanilla Chromium →
+  Camoufox win-spoof → + jittered OS-cursor clicks, scrolls, 85 s dwell →
+  clean FR residential (Free SAS Paris) via proxy → persistent profile with
+  2 visits 8 min apart → `referer="https://www.google.com/"` → honest
+  `os="linux"` (UA/TCP coherence) → `canvas_noise=False` stock canvas →
+  curl replay of a fresh signature on 3 paths. If a human user on a
+  VPN-flagged IP still gets pops while this whole matrix returns `result:0`,
+  the remaining hypotheses are **dayparting/budget exhaustion** (schedule
+  cron re-tests at evening hours) or an AdScore verdict component that
+  cannot be reached from inside the browser (e.g. server-side TLS/TCP
+  fingerprint of the JSONP request vs the OS claimed in the signature).
