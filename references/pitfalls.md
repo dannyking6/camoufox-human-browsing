@@ -239,3 +239,34 @@ inventory, private clean residential IP = inventory (2/11 sessions, the
 failures being public-list or recycled exits whose AdScore history is
 tainted). A proxy that appears on ANY public proxy list is effectively
 pre-flagged, even when ip-api shows proxy:false.
+
+## OS solution validated across independent hard sites (2026-11-12)
+
+The coherent-Linux recipe (`os="linux"` + `canvas_noise=False` + geoip, no
+OS spoof) was re-tested against every hard public detector — all pass:
+incolumitas `os_mismatch:false` + relay `flagged:false` (its TCP section
+exposes the exact mechanism: p0f-style SYN capture, `avg_score_os_class`
+Linux 11.78/20.5 vs Windows 3.65 for stack `MSTNW`/TTL 50/window 64860 —
+the site compares this to the UA's claimed OS), deviceandbrowserinfo
+"You are human!", iphey "Trustworthy" MX 100 (previously overlay-blocked —
+a plain visit now runs the scan), sannysoft all-pass, BrowserScan 90%
+authenticity, creepjs clean, JA3/JA4/Akamai coherent.
+
+Implication: OS spoofing on a mismatched host is dead — the SYN-level
+classification cannot be patched from inside the browser. Either run the
+honest OS, or move the whole session to a host whose stack matches the
+claim (real Windows machine / Windows exit). A `webDriverAdvanced: FAIL`
+may still appear on incolumitas' Intoli block while everything else
+passes; treat it as noise unless a site acts on it.
+
+Also: Camoufox DOES fake the faked-able physics (bundled fontconfig makes
+claimed OS fonts render with real metrics, `windows-crt-math.patch` fixes
+Math/libm hashes, fpgen draws credible GPU strings) — the only unfakeable
+layer is pixel rasterization + kernel TCP, both host-bound.
+
+Page-context matters as much as the browser: the same session/IP/config
+that always returned `result:0` on a PopAds-style inventory started
+returning `result:1` right after the target page dropped its third-party
+ad banner (a-ads), images and webfonts. AdScore reads performance resource
+entries (its `s21` probe) — a third-party AD domain in the page's resource
+list is itself a signal. Slim pages help verdicts.
