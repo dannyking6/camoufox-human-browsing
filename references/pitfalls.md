@@ -300,3 +300,30 @@ pixels and other physical probes still betray a Linux host when claiming
 Windows, so prefer claiming Linux unless the site relies on the relay check.
 Signal weights if building your own stack: tcp_options 0.991,
 ip_total_length/tcp_off 0.95, window_scaling 0.77, ip_id 0.71, ttl 0.56.
+
+## Explicit fingerprint path = 100% human-under-proxy (2026-11-12, AdScore live lab)
+
+Controlled experiment on a self-operated AdScore site (hozakuwe.github.io,
+AdscoreInit in head, PopCash pop engine) from a flagged datacenter IP
+(M247, proxy:true). Dashboard counts scans, not visits. Batches sized
+16/8/4/2/1 (unique subset sums) so the dashboard delta decodes which
+batch passed:
+
+- explicit fingerprint path (`generate_fingerprint(os='macos')` passed as
+  `fingerprint=fp`): 24/24 classified human-under-proxy, both with FIXED
+  and RANDOMIZED human behavior
+- launcher-internal path (`os='macos'`): 6/11 (~55%) - the launcher adds
+  an intermittent artifact
+- `os='windows'` claim: 0/4 even with corrected window geometry - the
+  Windows claim is dead on a Linux host regardless (relay model ~0.95)
+- persistent identity (same fp twice): 2/2
+- canvas noise (forced for foreign-OS claims) does NOT disqualify:
+  noisy sessions classified human
+- window geometry matters as a baseline: viewport 1280x720 on a 1366x900
+  Xvfb gives a ~104px chrome margin (realistic); 1366x768 makes
+  innerHeight > availHeight (impossible, instant bot)
+
+Recipe: generate the fingerprint explicitly, pass it via `fingerprint=`,
+viewport 1280x720, geoip=True, human mouse/scroll, single page per scan.
+The pop itself still requires user activation (a click) - the positive
+verdict alone never fires it.
