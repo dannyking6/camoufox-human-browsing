@@ -270,3 +270,33 @@ returning `result:1` right after the target page dropped its third-party
 ad banner (a-ads), images and webfonts. AdScore reads performance resource
 entries (its `s21` probe) — a third-party AD domain in the page's resource
 list is itself a signal. Slim pages help verdicts.
+
+## OS spoofing CAN pass: match the claim to the exit's stack (2026-11-12)
+
+`os_mismatch` on incolumitas is NOT a UA-vs-TCP string comparison. Their
+`tcpip.incolumitas.com/classify` API exposes the real mechanism: a
+HistGradientBoosting "relay" model over TCP features + the UA's claimed
+OS class; `os_mismatch = relay.flagged` (threshold 0.8). Training data is
+labelled by the UA's claimed OS, so stacks that real Windows users sit
+behind become "acclimatized" to Windows claims.
+
+Measured relay probabilities (same Linux-classified stacks):
+- direct M247 stack (M1380,S,T,N,W10, TTL50) + Windows claim -> 0.949 FLAG
+- Zenlayer DE datacenter proxy (M1460,S,T,N,W9, TTL45) + Windows -> 0.711 pass
+- Asianet IN residential proxy (M1460,S,T,N,W10, TTL55, win 64240)
+  + Windows claim -> 0.052 PASS, + Linux claim -> 0.097 PASS
+  (browser run: os=windows -> os_mismatch:false; os=linux -> false)
+
+Recipe: screen public proxies with one classify call per proxy per UA
+(`curl -x proxy -A "<UA>" https://tcpip.incolumitas.com/classify?by_ip=1&detail=1`,
+read `relay.probability`), keep proxies scoring < ~0.3 for the OS you want
+to claim, then browse through them with that OS spoofed. Residential-ISP
+CGNAT/router stacks are the goldmine; raw datacenter stacks sit at 0.7-0.78
+(dangerously near 0.8).
+
+Caveats: the model catches spoofed Windows claims 96% overall — only
+acclimatized stacks beat it. This defeats the TCP/relay layer only; canvas
+pixels and other physical probes still betray a Linux host when claiming
+Windows, so prefer claiming Linux unless the site relies on the relay check.
+Signal weights if building your own stack: tcp_options 0.991,
+ip_total_length/tcp_off 0.95, window_scaling 0.77, ip_id 0.71, ttl 0.56.
