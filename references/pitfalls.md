@@ -374,3 +374,36 @@ headed Xvfb 28/28, virtual macos 25/25, headless macos 12/12, linux 6/6.
 Universal rule: coherent OS claim (matches TCP) + real vendor screen
 resolution + realistic window geometry = human verdict, everything else is
 free to vary.
+
+## IP selection: the PTR is the tell (2026-11-13, displayvertising pop won)
+
+Residential-proxy pools mix two kinds of exits and only one kind works:
+
+- WINNERS have a subscriber-pattern reverse DNS (PTR): `hfc.dyn.abo.bbox.fr`
+  (Bouygues), `lfbn-*.abo.wanadoo.fr` (Orange), `subs.proxad.net` (Free),
+  `*.mobile.fr.orangecustomers.net` (Orange Mobile). A real home connection
+  always answers "who are you?" with an ISP-subscriber name.
+- LOSERS have NO PTR at all (e.g. VA Telecom AS59877 185.61.176.0/22 - an
+  infra range full of mail/smtp/httpclient servers). An IP that stays mute
+  reads as "a server", not "a person", no matter its history. Confirmed
+  listed in SpamRATS noptr.spamrats.com.
+
+Public proxy lists, ip-api, proxycheck, Scamalytics and spam DNSBLs do NOT
+separate winners from losers - the PTR + range usage-type is the visible
+discriminator. Check the PTR before spending a visit (~2 KB per probe):
+
+    dig +short -x <ip> @1.1.1.1   # accept: abo|dyn|subs|mobile|customers|lfbn
+                                  # reject: no PTR, or mx/smtp/static/server names
+
+CAVEAT: a broken local resolver lies - gethostbyaddr() returned nothing for
+perfectly good PTRs. Always resolve PTRs against a public resolver (dig
+@1.1.1.1) and verify with a known-good control IP.
+
+## Displayvertising pop: the verdict must be ripe BEFORE the click
+
+Winning run: IP prefiltered by PTR -> page load -> AdScore inventory returns
+result:1 at t+25 s (dwell 30 s) -> click AFTER the verdict -> popup fires.
+Losing run: same recipe, dwell cut to 10 s, click before any inventory ->
+the gate evaluated the pop attempt cold -> result:0. Rule: dwell ~30 s and
+wait for the first inventory result:1 before clicking; if it says result:0,
+do not bother clicking.
