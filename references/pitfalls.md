@@ -341,3 +341,10 @@ browser-side variable - the contradiction is the network stack itself
 cosmetics. Perfect A/B: same IP, same method, same behavior - macos 24/24
 human, windows 0/319. Only real fixes: run the browser on actual Windows,
 or exit through a genuine Windows machine. Otherwise claim macos (or linux).
+
+## Headless control batch (2026-11-13) - classification pending
+
+4 headed (05:41:26-05:42:46 UTC) vs 3 headless (05:40:02-05:40:52 UTC),
+identical explicit-fp macos recipe. All verdicts received. Dashboard read
+pending; decode over {4,3}. NOTE: headless launches need no DISPLAY, headed
+launches silently fail without one (check ok=True before trusting a batch).
