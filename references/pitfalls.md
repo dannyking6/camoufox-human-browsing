@@ -349,8 +349,9 @@ headless mode Camoufox skips the display clamp (get_screen_cons returns
 None), so each run reports its fingerprint's randomly drawn screen.
 Dashboard-decoded results (unique batch sizes 5/7/3, one aggregate read):
 
-- virtual + screen fixed 1440x900: 9/9 human-under-proxy  <- farm recipe
-- headless + screen fixed 1440x900: 8/8
+- virtual + screen fixed 1440x900: 15/15 human-under-proxy  <- farm recipe
+  (9/9 discovery + 6/6 confirmation block)
+- headless + screen fixed 1440x900: 12/12 (8/8 + 4/4 confirmation)
 - headless + screen fixed 1512x982: 0/6 (window not maximized:
   outerHeight 885 < availHeight 906 - suspicious geometry)
 - virtual + 1512x982: 3/3 (virtual maximizes the window, geometry coherent)
