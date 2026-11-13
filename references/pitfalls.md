@@ -342,15 +342,23 @@ cosmetics. Perfect A/B: same IP, same method, same behavior - macos 24/24
 human, windows 0/319. Only real fixes: run the browser on actual Windows,
 or exit through a genuine Windows machine. Otherwise claim macos (or linux).
 
-## Headless: intermittent ~50% pass - do NOT use for the winning recipe
+## Headless SOLVED: the screen draw was the variable (not chance)
 
-Control batch (4 headed + 3 headless, dashboard read = 6/7 proxy) then a
-sequential re-test of 3 headless with a dashboard read in between (1/3
-proxy). Decode: headed 4/4 (consistent with 28/28 track record), headless
-3/6 = 50%, same intermittent profile as the launcher-internal os= path.
-Geometry is NOT the cause (measured: headless applies the fingerprint's
-screen 1512x982 with a plausible 186px chrome margin - cleaner than headed
-on Xvfb). Root cause unidentified. Verdict: stay headed on Xvfb (~70 MB
-each); for test farms, run multiple Xvfb displays rather than headless.
-NOTE: headless launches need no DISPLAY, headed launches silently fail
-without one (check ok=True before trusting a batch).
+The ~50% headless pass rate was screen-draw dependent, not random. In
+headless mode Camoufox skips the display clamp (get_screen_cons returns
+None), so each run reports its fingerprint's randomly drawn screen.
+Dashboard-decoded results (unique batch sizes 5/7/3, one aggregate read):
+
+- virtual + screen fixed 1440x900: 9/9 human-under-proxy  <- farm recipe
+- headless + screen fixed 1440x900: 8/8
+- headless + screen fixed 1512x982: 0/6 (window not maximized:
+  outerHeight 885 < availHeight 906 - suspicious geometry)
+- virtual + 1512x982: 3/3 (virtual maximizes the window, geometry coherent)
+- 1296x810: not a real Mac resolution - 1 bot (likely the single failure
+  in a 12-scan mixed batch)
+
+Rule: 1440x900 (MacBook Air) is statistically invisible; fake Mac
+resolutions fail. Use headless='virtual' + CAMOUFOX_VIRTUAL_DISPLAY_SIZE
++ fingerprint screen pinned to 1440x900. Plain headless only with a
+pinned 1440x900 screen. Unpinned draws = coin flip. NOTE: headless
+launches need no DISPLAY, headed launches silently fail without one.

@@ -13,7 +13,7 @@ exactly where it left off, on any machine. It contains no credentials.
 | `os="windows"` (any variation, 319 tests) | 0% — all bot | dead on Linux host |
 | canvas noise (forced for foreign-OS claims) | does NOT disqualify | fine to keep |
 | persistent identity (same fp across visits) | passes | fine |
-| headless vs headed | headless 3/6 (~50%), headed 28/28 | headless unusable, stay headed |
+| headless vs headed | SOLVED: screen draw was the variable. virtual+1440x900 = 9/9; headless+1440x900 = 8/8; headless+1512x982 = 0/6 | virtual+1440x900 = farm recipe |
 
 ## The recipe that works (copy-paste)
 
@@ -56,9 +56,10 @@ dashboard shows per-scan times.
 
 ## Pending (resume here)
 
-1. ~~Headless control batch~~ — RESOLVED: headless 3/6 (~50%, intermittent),
-   headed 4/4. Stay headed on Xvfb. Root cause of the headless flakiness
-   unidentified (geometry ruled out by measurement).
+1. ~~Headless control batch~~ — RESOLVED (see pitfalls.md): the ~50% was
+   the unclamped random screen draw. Farm recipe: headless='virtual' +
+   CAMOUFOX_VIRTUAL_DISPLAY_SIZE=1366x900 + fp screen pinned 1440x900
+   (9/9 dashboard-confirmed).
 2. **`geoip=False` variant** — never ran (script bug: `geoip` passed twice).
    30 tests owed.
 3. **Click test** — one click on a visit classified human-under-proxy to see
