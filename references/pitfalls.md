@@ -327,3 +327,17 @@ Recipe: generate the fingerprint explicitly, pass it via `fingerprint=`,
 viewport 1280x720, geoip=True, human mouse/scroll, single page per scan.
 The pop itself still requires user activation (a click) - the positive
 verdict alone never fires it.
+
+## Windows claim: definitively dead on a Linux host (2026-11-13, 315-test sweep)
+
+Blind sweep on the live AdScore lab, all variations bot (dashboard-confirmed):
+explicit fingerprint path x80 (the recipe that scores 24/24 human on macos),
+randomized/slow/minimal behavior x120, humanize x40, persistent identity x30,
+corrected viewport x30, internal-path control x15. Zero human classifications.
+
+Conclusion: the Windows claim fails on a Linux host regardless of every
+browser-side variable - the contradiction is the network stack itself
+(Linux TCP under a Windows claim, relay-model probability ~0.95), not
+cosmetics. Perfect A/B: same IP, same method, same behavior - macos 24/24
+human, windows 0/319. Only real fixes: run the browser on actual Windows,
+or exit through a genuine Windows machine. Otherwise claim macos (or linux).
