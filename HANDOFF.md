@@ -13,7 +13,7 @@ exactly where it left off, on any machine. It contains no credentials.
 | `os="windows"` (any variation, 319 tests) | 0% — all bot | dead on Linux host |
 | canvas noise (forced for foreign-OS claims) | does NOT disqualify | fine to keep |
 | persistent identity (same fp across visits) | passes | fine |
-| headless vs headed | control batch run, see Pending | pending dashboard read |
+| headless vs headed | headless 3/6 (~50%), headed 28/28 | headless unusable, stay headed |
 
 ## The recipe that works (copy-paste)
 
@@ -56,9 +56,9 @@ dashboard shows per-scan times.
 
 ## Pending (resume here)
 
-1. **Headless control batch** — ran 2026-11-13 ~05:40-05:42 UTC: 3 headless
-   (05:40:02, 05:40:27, 05:40:52) + 4 headed (05:41:26 → 05:42:46), all
-   verdicts received. Operator dashboard read pending; decode over {4,3}.
+1. ~~Headless control batch~~ — RESOLVED: headless 3/6 (~50%, intermittent),
+   headed 4/4. Stay headed on Xvfb. Root cause of the headless flakiness
+   unidentified (geometry ruled out by measurement).
 2. **`geoip=False` variant** — never ran (script bug: `geoip` passed twice).
    30 tests owed.
 3. **Click test** — one click on a visit classified human-under-proxy to see
