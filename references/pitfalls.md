@@ -363,3 +363,14 @@ resolutions fail. Use headless='virtual' + CAMOUFOX_VIRTUAL_DISPLAY_SIZE
 + fingerprint screen pinned to 1440x900. Plain headless only with a
 pinned 1440x900 screen. Unpinned draws = coin flip. NOTE: headless
 launches need no DISPLAY, headed launches silently fail without one.
+
+## Persona diversity is free (2026-11-13, dashboard-confirmed)
+
+16 unique personas (varying GPU draws: Apple M1 / Intel HD / Radeon HD 3200 /
+GeForce GTX 980 / Radeon R9; varying Firefox UAs; macos x10 at 1440x900,
+linux x6 at 1920x1080, all headless='virtual'): 16/16 human-under-proxy,
+including the "incoherent" Radeon-on-Mac draws. Combined validated recipes:
+headed Xvfb 28/28, virtual macos 25/25, headless macos 12/12, linux 6/6.
+Universal rule: coherent OS claim (matches TCP) + real vendor screen
+resolution + realistic window geometry = human verdict, everything else is
+free to vary.

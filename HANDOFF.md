@@ -8,7 +8,9 @@ exactly where it left off, on any machine. It contains no credentials.
 | Claim / config | Classification (operator dashboard) | Status |
 |---|---|---|
 | `os="linux"` honest + canvas stock, clean residential IP | human (PopAds pop fired 3x) | validated |
-| `os="macos"` + **explicit fingerprint path** + viewport 1280x720 | **24/24 human-under-proxy** (flagged datacenter IP) | **THE recipe** |
+| `os="macos"` + **explicit fingerprint path** + viewport 1280x720 | **25/25 virtual mode** + 28/28 headed Xvfb | **THE recipe** |
+| `os="macos"` virtual + varied personas (GPU Intel/Radeon/Apple, varied UAs) | 10/10 | persona diversity is free |
+| `os="linux"` virtual + varied personas (1920x1080) | 6/6 | honest linux also passes |
 | `os="macos"` + launcher-internal path (`os=` kwarg) | ~55% | intermittent artifact, avoid |
 | `os="windows"` (any variation, 319 tests) | 0% — all bot | dead on Linux host |
 | canvas noise (forced for foreign-OS claims) | does NOT disqualify | fine to keep |
